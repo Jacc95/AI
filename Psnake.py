@@ -1,6 +1,7 @@
 #Snake Tutorial Python
  
 import math
+import time
 import random
 import pygame
 import tkinter as tk
@@ -48,13 +49,33 @@ class snake(object):
         self.dirnx = 0
         self.dirny = 1
  
-    def move(self):
+    def move(self, move): #Best-first Search
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
  
+            if move==0:
+                self.dirnx = -1
+                self.dirny = 0
+                self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+
+            elif move==1:
+                self.dirnx = 1
+                self.dirny = 0
+                self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+
+            elif move==2:
+                self.dirnx = 0
+                self.dirny = -1
+                self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+
+            elif move==3:
+                self.dirnx = 0
+                self.dirny = 1
+                self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+            
+            '''
             keys = pygame.key.get_pressed()
- 
             for key in keys:
                 if keys[pygame.K_LEFT]:
                     self.dirnx = -1
@@ -75,6 +96,7 @@ class snake(object):
                     self.dirnx = 0
                     self.dirny = 1
                     self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+            '''
  
         for i, c in enumerate(self.body):
             p = c.pos[:]
@@ -172,22 +194,120 @@ def message_box(subject, content):
     except:
         pass
  
+def BFS(goal, start, rows): #BEST FIRST SEARCH
+    newRoad=[]
+    direction=[0,0,0,0]
+    move=0
+    r=rows
+    x=start[0]
+    y=start[1]
+    a=goal[0]
+    b=goal[1]
+
+    aux=0
+    while True:
+        if x==a and y==b:
+            break
+
+        if x==a:
+            direction[2]=y-b
+            direction[3]=b-y
+
+            for i in range(len(direction)):
+                if direction[i]<0:
+                    direction[i]+=r
+
+            if direction[2]<direction[3]:
+                move=2
+            else:
+                move=3
+            newRoad.append(move)
+
+            #Update coordinates
+            if move==2:
+                y-=1
+            if move==3:
+                y+=1
+            #Check if map isn't out of bounds
+            if y<0:
+                y+=r
+
+        if y==b:
+            direction[0]=x-a
+            direction[1]=a-x
+
+            for i in range(len(direction)):
+                if direction[i]<0:
+                    direction[i]+=r
+
+            if direction[0]<direction[1]:
+                move=0
+            else:
+                move=1
+            newRoad.append(move)
+
+            #Update coordinates
+            if move==0:
+                x-=1
+            if move==1:
+                x+=1
+            #Check if map isn't out of bounds
+            if x<0:
+                x+=r
+
+        if x!=a and y!=b:
+            direction[0]=x-a
+            direction[1]=a-x
+            direction[2]=y-b
+            direction[3]=b-y
+
+            for i in range(len(direction)):
+                if direction[i]<0:
+                    direction[i]+=r
+
+            move=direction.index(min(direction))
+            newRoad.append(move)
+
+            #Update coordinates
+            if move==0:
+                x-=1
+            if move==1:
+                x+=1
+            if move==2:
+                y-=1
+            if move==3:
+                y+=1
+            #Check if map isn't out of bounds
+            if x<0:
+                x+=r
+            if y<0:
+                y+=r
+        aux+=1
+
+    return newRoad
  
 def main():
     global width, rows, s, snack
     width = 500
     rows = 20
+    spawn=(10,10)
     win = pygame.display.set_mode((width, width))
-    s = snake((255,0,0), (10,10))
-    snack = cube(randomSnack(rows, s), color=(0,255,0))
+    s = snake((255,0,0), spawn)
+    apple=randomSnack(rows, s);
+    snack = cube(apple, color=(0,255,0))
     flag = True
  
+    road=BFS(apple, spawn, rows)
+    print(road)
+
     clock = pygame.time.Clock()
-   
+    
+    time.sleep(0.05)
     while flag:
         pygame.time.delay(50)
         clock.tick(10)
-        s.move()
+        s.move(road.pop(0))
+        time.sleep(.1)
         if s.body[0].pos == snack.pos:
             s.addCube()
             snack = cube(randomSnack(rows, s), color=(0,255,0))
