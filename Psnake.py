@@ -19,7 +19,12 @@ class cube(object):
     def move(self, dirnx, dirny):
         self.dirnx = dirnx
         self.dirny = dirny
-        self.pos = (self.pos[0] + self.dirnx, self.pos[1] + self.dirny)
+
+        if self.dirnx == -1 and self.pos[0] <= 0: self.pos = (rows-1, self.pos[1])
+        elif self.dirnx == 1 and self.pos[0] >= rows-1: self.pos = (0, self.pos[1])
+        elif self.dirny == 1 and self.pos[1] >= rows-1: self.pos = (self.pos[0], 0)
+        elif self.dirny == -1 and self.pos[1] <= 0: self.pos = (self.pos[0], rows-1)
+        else: self.pos = (self.pos[0] + self.dirnx, self.pos[1] + self.dirny)
  
     def draw(self, surface, eyes=False):
         dis = self.w // self.rows
@@ -45,72 +50,45 @@ class snake(object):
         self.dirnx = 0
         self.dirny = 1
  
-    def move(self, move): 
-        
-        if move==0:
-            self.dirnx = -1
-            self.dirny = 0
-            self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+    def move(self, new, last): 
 
-        elif move==1:
-            self.dirnx = 1
-            self.dirny = 0
-            self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
-
-        elif move==2:
-            self.dirnx = 0
-            self.dirny = -1
-            self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
-
-        elif move==3:
-            self.dirnx = 0
-            self.dirny = 1
-            self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
-
-        '''
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-            
-            keys = pygame.key.get_pressed()
-            for key in keys:
-                if keys[pygame.K_LEFT]:
-                    self.dirnx = -1
-                    self.dirny = 0
-                    self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
- 
-                elif keys[pygame.K_RIGHT]:
-                    self.dirnx = 1
-                    self.dirny = 0
-                    self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
- 
-                elif keys[pygame.K_UP]:
-                    self.dirnx = 0
-                    self.dirny = -1
-                    self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
- 
-                elif keys[pygame.K_DOWN]:
-                    self.dirnx = 0
-                    self.dirny = 1
-                    self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
 
-                if keys[pygame.K_SPACE]: #just an exit condition
-                    pygame.quit()
-        '''
-        for i, c in enumerate(self.body):
+        if new!=last:
+            if new==0:
+                self.dirnx = -1
+                self.dirny = 0
+                self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+
+            elif new==1:
+                self.dirnx = 1
+                self.dirny = 0
+                self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+
+            elif new==2:
+                self.dirnx = 0
+                self.dirny = -1
+                self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+
+            elif new==3:
+                self.dirnx = 0
+                self.dirny = 1
+                self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+
+        for i, c in enumerate(self.body):        
             p = c.pos[:]
-            if p in self.turns:
+            if p in self.turns: #CHANGE DIRECTION
+                #print("este es el IF")
                 turn = self.turns[p]
                 c.move(turn[0],turn[1])
                 if i == len(self.body)-1:
                     self.turns.pop(p)
-            else:
-                if c.dirnx == -1 and c.pos[0] <= 0: c.pos = (c.rows-1, c.pos[1])
-                elif c.dirnx == 1 and c.pos[0] >= c.rows-1: c.pos = (0,c.pos[1])
-                elif c.dirny == 1 and c.pos[1] >= c.rows-1: c.pos = (c.pos[0], 0)
-                elif c.dirny == -1 and c.pos[1] <= 0: c.pos = (c.pos[0],c.rows-1)
-                else: c.move(c.dirnx,c.dirny)
-       
+            else: #CONTINUE IN THE SAME PATH
+                #print("este es el ELSE")
+                c.move(c.dirnx,c.dirny)
+        #print(self.head.pos)
  
     def reset(self, pos):
         self.head = cube(pos)
@@ -196,22 +174,24 @@ def message_box(subject, content):
     except:
         pass
 
-def BFS(goal, start, rows): #BEST FIRST SEARCH
+def BFS(goal, start, rows, last): #BEST FIRST SEARCH
     newRoad=[]
     direction=[0,0,0,0]
     move=0
+    lastMove=last
     r=rows
     x=start[0]
     y=start[1]
     a=goal[0]
     b=goal[1]
-    aux=0
 
-    while aux<50:
+    while True:
         direction[0]=x-a
         direction[1]=a-x
         direction[2]=y-b
         direction[3]=b-y
+
+        #print("distancias: ", direction)
 
         for i in range(len(direction)):
             if direction[i]<=0: #If it is equal, it means that the point reach the coordinates 
@@ -223,19 +203,33 @@ def BFS(goal, start, rows): #BEST FIRST SEARCH
             break
 
         move=direction.index(min(direction))
+
+        #print(move, " ", lastMove)
+        if (move+lastMove)==1:
+            #print("HORIZONTAL")
+            if direction[0]==0 and direction[1]==0:
+                move=lastMove
+            else:
+                direction[0]=r
+                direction[1]=r
+                move=direction.index(min(direction[2], direction[3]))
+        elif (move+lastMove)==5:
+            #print("VERTICAL")
+            move=direction.index(min(direction[0], direction[1]))
+
+        lastMove=move
+
         newRoad.append(move)
 
         #Update coordinates
-        if move==0:
+        if move==0: #LEFT
             x-=1
-        if move==1:
+        if move==1: #RIGHT
             x+=1
-        if move==2:
+        if move==2: #UP
             y-=1
-        if move==3:
+        if move==3: #DOWN
             y+=1
-
-        aux+=1
 
     return newRoad
  
@@ -243,40 +237,46 @@ def main():
     global width, rows, s, snack
     width = 500
     rows = 20
-    spawn=(10,10)
+    spawn=(rows//2,rows//2)
     win = pygame.display.set_mode((width, width))
     s = snake((255,0,0), spawn)
     apple=randomSnack(rows, s) #DEFINED TO GET DE COORDINATES OF THE APPLE
     snack = cube(apple, color=(0,255,0))
     flag = True
 
-    road=BFS(apple, spawn, rows)
-    print(road)
-    print(len(road))
-    print(s.getHeadPos())
+    lastMove=9
+    newMove=0
+
+    road=BFS(apple, spawn, rows, lastMove)
+    #print(road)
+    #print(len(road))
 
     clock = pygame.time.Clock()
     
     while flag:
+        pygame.event.pump()
         pygame.time.delay(50)
         clock.tick(10)
-        print(len(road))
-        s.move(road.pop(0))
-        #s.move(1)
-        print(road)
+        newMove=road.pop(0)
+        s.move(newMove,lastMove)
+
+        #s.move(1,0)
+        lastMove=newMove
+        #print(road)
         if s.body[0].pos == snack.pos:
             s.addCube()
             apple = randomSnack(rows, s)
             snack = cube(apple, color=(0,255,0))
-            road=BFS(apple, s.getHeadPos(), rows)
-            print(road)
+            road=BFS(apple, s.getHeadPos(), rows, lastMove)
+            #print(road)
 
         for x in range(len(s.body)):
             if s.body[x].pos in list(map(lambda z:z.pos,s.body[x+1:])):
                 print('Score: ', len(s.body))
                 message_box('You Lost!', 'Play again...')
-                s.reset((10,10))
-                road=BFS(apple, s.getHeadPos(), rows)
+                s.reset(spawn)
+                road=BFS(apple, s.getHeadPos(), rows, lastMove)
+                pygame.time.delay(100)
                 break
  
            
