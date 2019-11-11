@@ -8,7 +8,7 @@ import tkinter as tk
 from tkinter import messagebox
  
 class cube(object):
-    rows = 20
+    rows = 10
     w = 500
     def __init__(self,start,dirnx=1,dirny=0,color=(255,0,0)):
         self.pos = start
@@ -175,7 +175,7 @@ def message_box(subject, content):
     except:
         pass
 
-def BFS(goal, start, rows, last): #BEST FIRST SEARCH
+def AS(goal, start, rows, last): #BEST FIRST SEARCH
     newRoad=[]
     direction=[0,0,0,0]
     move=0
@@ -235,9 +235,9 @@ def BFS(goal, start, rows, last): #BEST FIRST SEARCH
     return newRoad
  
 def main():
-    global width, rows, s, snack
+    global width, rows, s, snack, path
     width = 500
-    rows = 20
+    rows = 10
     spawn=(rows//2,rows//2)
     win = pygame.display.set_mode((width, width))
     s = snake((255,0,0), spawn)
@@ -248,7 +248,7 @@ def main():
     lastMove=9
     newMove=0
 
-    road=BFS(apple, spawn, rows, lastMove)
+    road=AS(apple, spawn, rows, lastMove)
     #print(road)
     #print(len(road))
 
@@ -261,14 +261,13 @@ def main():
         newMove=road.pop(0)
         s.move(newMove,lastMove)
 
-        #s.move(1,0)
         lastMove=newMove
         #print(road)
         if s.body[0].pos == snack.pos:
             s.addCube()
             apple = randomSnack(rows, s)
             snack = cube(apple, color=(0,255,0))
-            road=BFS(apple, s.getHeadPos(), rows, lastMove)
+            road=AS(apple, s.getHeadPos(), rows, lastMove)
             #print(road)
 
         for x in range(len(s.body)):
@@ -276,7 +275,7 @@ def main():
                 print('Score: ', len(s.body))
                 message_box('You Lost!', 'Play again...')
                 s.reset(spawn)
-                road=BFS(apple, s.getHeadPos(), rows, lastMove)
+                road=AS(apple, s.getHeadPos(), rows, lastMove)
                 pygame.time.delay(100)
                 break
  
