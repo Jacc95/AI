@@ -3,6 +3,7 @@ import math
 import time
 import random
 import pygame
+import numpy
 import tkinter as tk
 from tkinter import messagebox
  
