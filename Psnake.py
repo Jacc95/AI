@@ -176,66 +176,71 @@ def message_box(subject, content):
         pass
 
 def AS(goal, start, rows, last): #BEST FIRST SEARCH
-    newRoad=[]
-    direction=[0,0,0,0]
+    #start = (x,y) where the head starts
+    #goal  = (x,y) where the apple is
+    newRoad = []    #Path to be followed
+    queue   = []    #Nodes to be expanded
+    visited = []    #Visited nodes
     move=0
     lastMove=last
     r=rows
-    x=start[0]
-    y=start[1]
-    a=goal[0]
-    b=goal[1]
+    exp = [] #expanded nodes 
+
+    visited.append(start)
+    queue.append(start)
 
     while True:
-        direction[0]=x-a
-        direction[1]=a-x
-        direction[2]=y-b
-        direction[3]=b-y
+        #Initializes flags that registers if a node has already been visited
+        flag = [False, False, False, False]
 
-        #print("distancias: ", direction)
+        #Generates the children based on the expanded node
+        exp[0] = [queue[0][0], queue[0][1]+1] #Up node
+        exp[1] = [queue[0][0], queue[0][1]-1] #Down node
+        exp[2] = [queue[0][0]-1, queue[0][1]] #Left node
+        exp[3] = [queue[0][0]+1, queue[0][1]] #Right node
 
-        for i in range(len(direction)):
-            if direction[i]<=0: #If it is equal, it means that the point reach the coordinates 
-                direction[i]+=r #Keeping the numbers positive
-            if direction[i]==0:
-                direction[i]=r
+        #Checks if one of the surrounding nodes is goal node, then Kills the While True
+        for i in range(len(exp)):
+            if exp[i] == goal:
+                #newRoad = 
+                break
+        
+        #Validates if the children node was already visited
+        for i in range(len(exp)):
+            for j in range(len(visited)):
+                if exp[i] == visited[j]:
+                    flag[i] = True
+        
+        #Depending on the node if it is repeated or not, add it to visited list
+        for i in range(len(flag)):
+            if flag[i] == False:
+                visited.append(exp[i])
+                queue.append(exp[i])
 
-        if direction[0]==direction[1] and direction[2]==direction[3] and direction[0]==direction[3]:
-            break
+        #Updates queue
+        queue.pop(0)
 
-        move=direction.index(min(direction))
+        
 
-        #print(move, " ", lastMove)
-        if (move+lastMove)==1:
-            #print("HORIZONTAL")
-            if direction[0]==0 and direction[1]==0:
-                move=lastMove
-            else:
-                direction[0]=r
-                direction[1]=r
-                move=direction.index(min(direction[2], direction[3]))
-        elif (move+lastMove)==5:
-            #print("VERTICAL")
-            move=direction.index(min(direction[0], direction[1]))
+        #lastMove=move
+        #newRoad.append(move)
 
-        lastMove=move
-
-        newRoad.append(move)
-
-        #Update coordinates
-        if move==0: #LEFT
-            x-=1
-        if move==1: #RIGHT
-            x+=1
-        if move==2: #UP
-            y-=1
-        if move==3: #DOWN
-            y+=1
+        #if visited node == goal
+            #break
+        # #Update coordinates
+        # if move==0: #LEFT
+        #     x-=1
+        # if move==1: #RIGHT
+        #     x+=1
+        # if move==2: #UP
+        #     y-=1
+        # if move==3: #DOWN
+        #     y+=1 
 
     return newRoad
  
 def main():
-    global width, rows, s, snack, path
+    global width, rows, s, snack
     width = 500
     rows = 10
     spawn=(rows//2,rows//2)
