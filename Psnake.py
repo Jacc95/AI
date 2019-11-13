@@ -181,9 +181,7 @@ def AS(goal, start, rows, last): #BEST FIRST SEARCH
     newRoad = []    #Path to be followed
     queue   = []    #Nodes to be expanded
     visited = []    #Visited nodes
-    move=0
-    lastMove=last
-    r=rows
+
     exp = [] #expanded nodes 
 
     visited.append(start)
@@ -194,21 +192,24 @@ def AS(goal, start, rows, last): #BEST FIRST SEARCH
         flag = [False, False, False, False]
 
         #Generates the children based on the expanded node
-        exp[0] = [queue[0][0], queue[0][1]+1] #Up node
-        exp[1] = [queue[0][0], queue[0][1]-1] #Down node
-        exp[2] = [queue[0][0]-1, queue[0][1]] #Left node
-        exp[3] = [queue[0][0]+1, queue[0][1]] #Right node
+        exp[0] = [queue[0][0], queue[0][1]+1, queue[0]] #Up node
+        exp[1] = [queue[0][0], queue[0][1]-1, queue[0]] #Down node
+        exp[2] = [queue[0][0]-1, queue[0][1], queue[0]] #Left node
+        exp[3] = [queue[0][0]+1, queue[0][1], queue[0]] #Right node
 
         #Checks if one of the surrounding nodes is goal node, then Kills the While True
         for i in range(len(exp)):
-            if exp[i] == goal:
-                #newRoad = 
-                break
+            if (exp[i][0],exp[i][1]) == goal:
+                newRoad = [exp[i]]
+                #while :
+                    
+                #newRoad = [,exp[i]]
+                break 
         
         #Validates if the children node was already visited
         for i in range(len(exp)):
             for j in range(len(visited)):
-                if exp[i] == visited[j]:
+                if (exp[i][0],exp[i][1]) == (visited[j][0],visited[j][1]):
                     flag[i] = True
         
         #Depending on the node if it is repeated or not, add it to visited list
@@ -217,10 +218,11 @@ def AS(goal, start, rows, last): #BEST FIRST SEARCH
                 visited.append(exp[i])
                 queue.append(exp[i])
 
-        #Updates queue
+        #Updates queue, eliminates the already expanded node from the queue
         queue.pop(0)
 
-        
+        #Parent thing
+
 
         #lastMove=move
         #newRoad.append(move)
