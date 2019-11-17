@@ -1,5 +1,6 @@
 # AI
 Snake game controlled by search agents
+
 Breadth First Search (Juan Alfonso Chan)
 
     def AS(goal, start, rows, last): #BEST FIRST SEARCH
