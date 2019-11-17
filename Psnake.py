@@ -175,7 +175,7 @@ def message_box(subject, content):
     except:
         pass
 
-def AS(goal, start, rows, last): #BEST FIRST SEARCH
+def AS(goal, start, rows, last): #BREADTH FIRST SEARCH
     #start = (x,y) where the head starts
     #goal  = (x,y) where the apple is
     newRoad  = []      #Origin to goal with parent and children relationship
