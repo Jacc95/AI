@@ -3,7 +3,7 @@ Snake game controlled by search agents
 
 Breadth First Search (Juan Alfonso Chan)
 
-    def AS(goal, start, rows, last): #BEST FIRST SEARCH
+    def AS(goal, start, rows, last): #BREADTH FIRST SEARCH
         #start = (x,y) where the head starts
         #goal  = (x,y) where the apple is
         newRoad  = []      #Origin to goal with parent and children relationship
